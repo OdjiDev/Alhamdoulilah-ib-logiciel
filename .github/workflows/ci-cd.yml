@@ -9,33 +9,36 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: Variables d'environnement
-  
-       # **JAVA_VERSION: 22
-        # Spécifier la version Java pour Spring Boot**
+    uses: actions/setup-java@v3
+    with:
+      java-package: jdk
+      check-latest: false
+      distribution: 'temurin'
 
-    steps:
+    # Define JAVA_VERSION environment variable if needed elsewhere
+    # env:
+    #   JAVA_VERSION: 22
+
+     steps:
       - name: Extraction du code source
         uses: actions/checkout@v3
-
       - name: Configuration de Java 17
         uses: actions/setup-java@v3
         with:
           java-version: ${{ env.JAVA_VERSION }}
-
       - name: Installation des dépendances Maven
         run: mvn install -DskipTests
-
       - name: Génération du build Angular
         run: ng build --prod
-
       - name: Génération du JAR Spring Boot
         run: mvn package
-
-      - name: Déploiement sur l'ordinateur de l'utilisateur
+      - name: Déploiement sur l'ordinateur de l'utilisateur (à des fins de test uniquement)
         run: |
-          # Téléchargement du script d'installation/déploiement
-        #  curl -OL https://exemple.com/script.sh
+          # Download script for deployment (replace with your actual script URL)
+          curl -OL https://exemple.com/script.sh
 
-          # Exécution du script d'installation/déploiement
-          #chmod +x script.sh
-         # ./script.sh
+          # Make script executable (caution: security risk)
+          chmod +x script.sh
+
+          # Execute deployment script (caution: security risk)
+          ./script.sh
