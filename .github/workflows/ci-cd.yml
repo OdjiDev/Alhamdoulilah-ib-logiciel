@@ -1,0 +1,56 @@
+# Ce définit le nom du workflow, qui apparaîtra dans l'interface utilisateur de GitHub Action
+name: Mise à jour automatique Spring Boot Angular
+
+# Cette section indique quand le workflow doit être déclenché. Dans ce cas, il sera déclenché
+# chaque fois qu'un push (un envoi de modifications) est effectué vers la branche main de votre dépôt.
+on:
+  push:
+    branches: [ main ]
+
+# La section jobs définit les différents processus qui seront exécutés dans le workflow. Ici, nous avons un 
+# seul job nommé build-and-deploy qui 
+# regroupe toutes les étapes nécessaires à la mise à jour et au déploiement.
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+# Cette étape utilise l'action actions/checkout@v3 fournie par GitHub Actions pour
+# extraire le code source de votre dépôt GitHub vers le runner
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+# Cette étape utilise l'action actions/setup-java@v3 pour configurer l'environnement 
+# Java sur le runner. La directive with: java-version: 11 spécifie que la version 11 de Java doit être installée.
+# Ajustez cette valeur si votre projet nécessite une version différente
+      - name: Configurer Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: 20 # Remplacer par la version Java requise par votre projet
+
+      - name: Installer Maven
+        uses: actions/setup-maven@v3
+
+      - name: Mettre à jour les dépendances Maven
+        run: mvn dependency:update
+
+      - name: Tester l'application Spring Boot
+        run: mvn test
+
+      - name: Générer le build Angular
+        run: ng build --prod
+
+      - name: Déployer l'application Angular (à adapter)
+        uses: JamesWard3/deploy-azure-web-app@v1
+        with:
+          app-name: GestionRessources # Remplacer par le nom de votre application Azure
+          publish-profile: Djire # Remplacer par le nom de votre profil de publication Azure
+          deployment-group: odji.dev # Remplacer par le nom de votre groupe de déploiement Azure
+
+      - name: Déployer l'application Spring Boot (à adapter)
+        uses: akio-technology/publish-build-artifact@v1
+        with:
+          artifact-name: spring-boot-app.jar
+          path: target/spring-boot-app.jar
+          deployment-group: odji.dev # Remplacer par le nom de votre groupe de déploiement Azure
